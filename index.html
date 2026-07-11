@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jayant Kumar — Data Engineer | ETL &amp; IDMC</title>
+<meta name="description" content="Jayant Kumar — Data Engineer specializing in ETL development, Informatica IDMC migrations, and Snowflake data pipelines.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0F1E;
+    --surface:#121A30;
+    --surface-2:#0D1526;
+    --line:#22304E;
+    --line-soft:#182240;
+    --text:#EDF1FA;
+    --text-muted:#8E9BBA;
+    --teal:#2FE5C4;
+    --teal-dim:#1CA98F;
+    --amber:#FFB648;
+    --violet:#A78BFA;
+    --rose:#FF6F91;
+    --blue:#5B9DFF;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.65;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--teal);color:#0A0F1E;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px;}
+  img{max-width:100%;display:block;}
+
+  /* ===== Ambient background: blurred color blobs + schematic grid ===== */
+  .bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  .blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:0.28;}
+  .blob1{width:520px;height:520px;background:var(--teal);top:-180px;left:-120px;animation:float1 22s ease-in-out infinite;}
+  .blob2{width:480px;height:480px;background:var(--violet);top:120px;right:-160px;opacity:0.22;animation:float2 26s ease-in-out infinite;}
+  .blob3{width:420px;height:420px;background:var(--amber);bottom:-180px;left:30%;opacity:0.16;animation:float3 30s ease-in-out infinite;}
+  .blob4{width:360px;height:360px;background:var(--rose);top:55%;right:8%;opacity:0.14;animation:float2 24s ease-in-out infinite reverse;}
+  @keyframes float1{0%,100%{transform:translate(0,0);}50%{transform:translate(60px,40px);}}
+  @keyframes float2{0%,100%{transform:translate(0,0);}50%{transform:translate(-50px,60px);}}
+  @keyframes float3{0%,100%{transform:translate(0,0);}50%{transform:translate(40px,-40px);}}
+  .grid-bg{
+    position:absolute;inset:0;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size:56px 56px;
+    opacity:0.4;
+    mask-image:radial-gradient(ellipse 80% 55% at 50% 0%, black 30%, transparent 78%);
+  }
+  @media (prefers-reduced-motion: reduce){ .blob{animation:none;} }
+
+  /* ===== NAV ===== */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(10,15,30,0.78);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;max-width:1140px;margin:0 auto;}
+  .logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;display:flex;align-items:center;gap:8px;letter-spacing:0.02em;}
+  .logo .dot{width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 12px var(--teal);}
+  .navlinks{display:flex;gap:26px;font-size:0.87rem;color:var(--text-muted);}
+  .navlinks a{transition:color .2s;position:relative;}
+  .navlinks a:hover{color:var(--teal);}
+  .nav-cta{
+    font-family:'JetBrains Mono',monospace;font-size:0.76rem;
+    background:linear-gradient(135deg, var(--teal), var(--blue));
+    color:#071018;font-weight:600;
+    padding:9px 16px;border-radius:7px;transition:all .2s;white-space:nowrap;
+  }
+  .nav-cta:hover{filter:brightness(1.12);transform:translateY(-1px);}
+  @media (max-width:800px){ .navlinks{display:none;} }
+
+  /* ===== HERO ===== */
+  .hero{position:relative;z-index:1;padding:100px 0 70px;border-bottom:1px solid var(--line);}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--amber);
+    letter-spacing:0.12em;text-transform:uppercase;margin-bottom:20px;
+    display:inline-flex;align-items:center;gap:10px;
+    border:1px solid rgba(255,182,72,0.3);background:rgba(255,182,72,0.06);
+    padding:7px 14px;border-radius:20px;
+  }
+  .eyebrow .pulse{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber);animation:pulse 1.8s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .hero h1{
+    font-size:clamp(2.3rem,5.6vw,3.8rem);font-weight:700;line-height:1.08;letter-spacing:-0.01em;margin-bottom:20px;
+  }
+  .grad-text{
+    background:linear-gradient(100deg, var(--teal) 10%, var(--blue) 55%, var(--violet) 95%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero .role{font-size:clamp(1.03rem,2vw,1.25rem);color:var(--text-muted);max-width:660px;margin-bottom:32px;}
+  .hero .role strong{color:var(--text);font-weight:600;}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:54px;}
+  .btn{padding:12px 22px;border-radius:8px;font-size:0.92rem;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:all .2s;}
+  .btn-primary{background:linear-gradient(135deg, var(--teal), var(--blue));color:#071018;box-shadow:0 8px 24px -8px rgba(47,229,196,0.5);}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 28px -8px rgba(47,229,196,0.65);}
+  .btn-ghost{border:1px solid var(--line);color:var(--text);}
+  .btn-ghost:hover{border-color:var(--teal-dim);color:var(--teal);}
+
+  .pipeline{position:relative;display:flex;justify-content:space-between;align-items:center;padding-top:10px;}
+  .pipeline-line{position:absolute;top:14px;left:0;right:0;height:2px;background:linear-gradient(90deg, var(--line) 0%, var(--teal-dim) 30%, var(--violet) 70%, var(--line) 100%);z-index:0;}
+  .pipeline-line .packet{position:absolute;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber);animation:travel 5s linear infinite;}
+  @keyframes travel{0%{left:0%;opacity:0;}5%{opacity:1;}95%{opacity:1;}100%{left:100%;opacity:0;}}
+  .pnode{position:relative;z-index:1;text-align:center;flex:1;}
+  .pnode .ring{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--bg);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;}
+  .pnode.active .ring{border-color:var(--teal);box-shadow:0 0 0 4px rgba(47,229,196,0.14);}
+  .pnode .ring .core{width:8px;height:8px;border-radius:50%;background:var(--line);}
+  .pnode.active .ring .core{background:var(--teal);}
+  .pnode label{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--text-muted);letter-spacing:0.08em;}
+  .pnode.active label{color:var(--teal);}
+  @media (max-width:700px){ .pnode label{font-size:0.58rem;} }
+
+  section{position:relative;z-index:1;padding:78px 0;border-bottom:1px solid var(--line);scroll-margin-top:78px;}
+  .client-group{scroll-margin-top:100px;}
+  .section-head{margin-bottom:42px;display:flex;align-items:center;gap:14px;}
+  .section-icon{
+    width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;border:1px solid var(--line);
+  }
+  .section-tag{font-family:'JetBrains Mono',monospace;font-size:0.76rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;display:block;}
+  .section-head h2{font-size:clamp(1.5rem,3.2vw,2.15rem);font-weight:600;}
+
+  /* ===== ABOUT ===== */
+  .about-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:start;}
+  .about-grid p{color:var(--text-muted);font-size:1rem;margin-bottom:16px;}
+  .about-grid p strong{color:var(--text);font-weight:600;}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;}
+  .stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--teal));}
+  .stat .num{font-family:'Space Grotesk',sans-serif;font-size:1.9rem;font-weight:700;color:var(--accent,var(--teal));}
+  .stat .label{font-size:0.8rem;color:var(--text-muted);margin-top:4px;}
+  @media (max-width:800px){ .about-grid{grid-template-columns:1fr;} }
+
+  .genai{background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--radius);padding:22px 26px;margin-top:32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+  .genai .icon{width:38px;height:38px;border-radius:9px;background:rgba(167,139,250,0.12);border:1px solid var(--violet);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--violet);font-size:1.1rem;}
+  .genai-text{flex:1;min-width:220px;}
+  .genai-text .t1{font-weight:600;font-size:0.95rem;margin-bottom:4px;}
+  .genai-text .t2{font-size:0.85rem;color:var(--text-muted);}
+  .genai-chips{display:flex;gap:8px;flex-wrap:wrap;}
+  .genai-chips span{font-family:'JetBrains Mono',monospace;font-size:0.72rem;border:1px solid var(--line);padding:5px 10px;border-radius:5px;color:var(--text-muted);}
+
+  /* ===== FEATURED PROJECT (CNO) ===== */
+  .featured{
+    background:linear-gradient(160deg, rgba(47,229,196,0.06), rgba(167,139,250,0.05));
+    border:1px solid var(--line);border-radius:18px;padding:38px;position:relative;overflow:hidden;
+  }
+  .featured::before{
+    content:'';position:absolute;top:-40%;right:-15%;width:400px;height:400px;border-radius:50%;
+    background:radial-gradient(circle, rgba(47,229,196,0.15), transparent 70%);pointer-events:none;
+  }
+  .featured-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:8px;position:relative;z-index:1;}
+  .live-badge{
+    display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:0.72rem;
+    color:var(--teal);background:rgba(47,229,196,0.1);border:1px solid rgba(47,229,196,0.35);
+    padding:6px 12px;border-radius:20px;letter-spacing:0.06em;
+  }
+  .live-badge .dotpulse{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);animation:pulse 1.6s ease-in-out infinite;}
+  .featured h3{font-size:1.5rem;font-weight:700;margin:14px 0 4px;position:relative;z-index:1;}
+  .featured .client-line{color:var(--text-muted);font-size:0.95rem;margin-bottom:24px;position:relative;z-index:1;}
+  .featured .client-line strong{color:var(--amber);}
+
+  /* Flow diagram */
+  .flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:30px;position:relative;z-index:1;}
+  .flow-box{
+    flex:1;min-width:150px;background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:16px 14px;text-align:center;position:relative;
+  }
+  .flow-box .fb-icon{width:34px;height:34px;border-radius:8px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+  .flow-box .fb-title{font-weight:600;font-size:0.85rem;margin-bottom:3px;}
+  .flow-box .fb-sub{font-size:0.72rem;color:var(--text-muted);}
+  .flow-arrow{flex:0 0 auto;width:34px;text-align:center;color:var(--text-muted);font-size:1.2rem;padding:0 4px;}
+  @media (max-width:800px){
+    .flow{flex-direction:column;align-items:stretch;}
+    .flow-arrow{transform:rotate(90deg);margin:2px auto;}
+  }
+
+  .featured ul.flist{list-style:none;display:grid;gap:11px;margin-bottom:24px;position:relative;z-index:1;}
+  .featured ul.flist li{padding-left:22px;position:relative;color:var(--text-muted);font-size:0.92rem;}
+  .featured ul.flist li::before{content:'';position:absolute;left:0;top:8px;width:7px;height:7px;background:var(--teal);border-radius:2px;}
+  .featured .tools{display:flex;flex-wrap:wrap;gap:8px;position:relative;z-index:1;}
+  .featured .tools span{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--text);border:1px solid var(--line);background:var(--surface);padding:6px 11px;border-radius:6px;}
+
+  /* ===== EXPERIENCE ===== */
+  .job{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:32px;margin-bottom:24px;}
+  .job-head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px;}
+  .job-head h3{font-size:1.25rem;font-weight:600;}
+  .job-head .period{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--amber);}
+  .job-company{color:var(--text-muted);font-size:0.95rem;margin-bottom:20px;}
+  .job ul{list-style:none;display:grid;gap:11px;}
+  .job li{padding-left:20px;position:relative;color:var(--text-muted);font-size:0.93rem;}
+  .job li::before{content:'';position:absolute;left:0;top:8px;width:6px;height:6px;background:var(--teal);border-radius:1px;}
+  .toggle-more{margin-top:18px;background:none;border:1px dashed var(--line);color:var(--teal);font-family:'JetBrains Mono',monospace;font-size:0.78rem;padding:9px 16px;border-radius:6px;cursor:pointer;transition:all .2s;}
+  .toggle-more:hover{border-color:var(--teal-dim);background:rgba(47,229,196,0.06);}
+  .job-extra{display:none;margin-top:11px;}
+  .job-extra.open{display:grid;}
+
+  /* ===== PROJECTS grid ===== */
+  .projects{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:28px;}
+  @media (max-width:900px){.projects{grid-template-columns:1fr;}}
+  .pcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+  .pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--teal));}
+  .pcard .pnum{font-family:'JetBrains Mono',monospace;color:var(--accent,var(--teal));font-size:0.78rem;margin-bottom:14px;}
+  .pcard h3{font-size:1.08rem;font-weight:600;margin-bottom:6px;}
+  .pcard .client{font-size:0.83rem;color:var(--text-muted);margin-bottom:4px;}
+  .pcard .period{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--amber);margin-bottom:16px;}
+  .pcard p{font-size:0.87rem;color:var(--text-muted);margin-bottom:18px;flex:1;}
+  .pcard .tools{display:flex;flex-wrap:wrap;gap:6px;}
+  .pcard .tools span{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text-muted);border:1px solid var(--line);padding:4px 8px;border-radius:4px;}
+
+  /* ===== SKILLS ===== */
+  .skill-groups{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;}
+  @media (max-width:800px){.skill-groups{grid-template-columns:1fr;}}
+  .skill-group h4{font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--accent,var(--amber));text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;}
+  .chips span{background:var(--surface);border:1px solid var(--line);padding:8px 14px;border-radius:20px;font-size:0.85rem;color:var(--text);transition:all .2s;}
+  .chips span:hover{border-color:var(--accent,var(--teal-dim));color:var(--accent,var(--teal));transform:translateY(-1px);}
+
+  /* ===== CERTS ===== */
+  .certs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
+  .cert{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;display:flex;align-items:center;gap:14px;}
+  .cert .badge{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:rgba(255,182,72,0.1);border:1px solid var(--amber);display:flex;align-items:center;justify-content:center;color:var(--amber);font-size:1rem;}
+  .cert .name{font-size:0.88rem;font-weight:500;}
+
+  /* ===== EDUCATION ===== */
+  .edu-list{display:grid;gap:16px;}
+  .edu-item{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;padding:18px 0;border-bottom:1px solid var(--line-soft);}
+  .edu-item:last-child{border-bottom:none;}
+  .edu-item .deg{font-weight:600;font-size:0.98rem;}
+  .edu-item .school{color:var(--text-muted);font-size:0.88rem;}
+  .edu-item .year{font-family:'JetBrains Mono',monospace;color:var(--amber);font-size:0.82rem;}
+
+  /* ===== CONTACT / FOOTER ===== */
+  footer{padding:80px 0 50px;position:relative;z-index:1;}
+  .contact-box{background:linear-gradient(160deg, rgba(47,229,196,0.08), rgba(91,157,255,0.05));border:1px solid var(--line);border-radius:18px;padding:54px 40px;text-align:center;position:relative;overflow:hidden;}
+  .contact-box::before{content:'';position:absolute;bottom:-30%;left:-10%;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle, rgba(167,139,250,0.16), transparent 70%);}
+  .contact-box h2{font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:14px;position:relative;z-index:1;}
+  .contact-box p{color:var(--text-muted);max-width:480px;margin:0 auto 32px;position:relative;z-index:1;}
+  .contact-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;position:relative;z-index:1;}
+  .footer-bottom{margin-top:50px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:var(--text-muted);}
+  .footer-bottom .mono{color:#5A6A87;}
+
+  a:focus-visible, button:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+
+  /* Client trail (under Experience) */
+  .client-trail{margin-top:24px;padding-top:22px;border-top:1px dashed var(--line-soft);}
+  .ct-label{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:12px;}
+  .ct-path{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .ct-chip{
+    font-size:0.85rem;font-weight:600;padding:8px 14px;border-radius:20px;
+    border:1px solid var(--line);color:var(--text-muted);background:var(--surface-2);
+    cursor:pointer;transition:all .2s;display:inline-block;
+  }
+  .ct-chip:hover{border-color:var(--teal-dim);color:var(--teal);transform:translateY(-1px);}
+  .ct-chip.current{color:var(--teal);border-color:rgba(47,229,196,0.4);background:rgba(47,229,196,0.08);}
+  .ct-chip em{font-style:normal;font-size:0.72rem;opacity:0.8;}
+  .ct-arrow{color:var(--text-muted);font-size:0.9rem;}
+
+  /* Client group headers in Client History */
+  .client-group{margin-bottom:40px;}
+  .client-group:last-child{margin-bottom:0;}
+  .cg-head{
+    display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-weight:600;
+    font-size:1.05rem;margin-bottom:18px;
+  }
+  .cg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .cg-meta{font-family:'JetBrains Mono',monospace;font-weight:400;font-size:0.75rem;color:var(--text-muted);margin-left:4px;}
+
+  /* ===== MODALS ===== */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:100;background:rgba(6,9,18,0.72);backdrop-filter:blur(6px);
+    display:none;align-items:center;justify-content:center;padding:24px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{
+    background:var(--surface);border:1px solid var(--line);border-radius:18px;
+    width:100%;max-width:560px;max-height:86vh;overflow-y:auto;position:relative;
+    padding:36px;box-shadow:0 30px 80px -20px rgba(0,0,0,0.6);
+    animation:modalIn .25s ease;
+  }
+  .modal-box.wide{max-width:820px;}
+  @keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(0.98);}to{opacity:1;transform:none;}}
+  .modal-close{
+    position:absolute;top:18px;right:18px;width:34px;height:34px;border-radius:9px;
+    border:1px solid var(--line);background:var(--surface-2);color:var(--text-muted);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:all .2s;
+  }
+  .modal-close:hover{color:var(--teal);border-color:var(--teal-dim);}
+  .modal-eyebrow{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--teal);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+  .modal-box h2{font-size:1.5rem;font-weight:700;margin-bottom:8px;}
+  .modal-box .sub{color:var(--text-muted);font-size:0.92rem;margin-bottom:28px;}
+
+  /* Contact modal */
+  .contact-list{display:grid;gap:14px;}
+  .contact-row{
+    display:flex;align-items:center;gap:16px;background:var(--surface-2);border:1px solid var(--line);
+    border-radius:12px;padding:16px 18px;transition:all .2s;
+  }
+  .contact-row:hover{border-color:var(--teal-dim);transform:translateY(-1px);}
+  .contact-row .c-icon{
+    width:42px;height:42px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+  }
+  .contact-row .c-body{flex:1;min-width:0;}
+  .contact-row .c-label{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;}
+  .contact-row .c-value{font-size:0.98rem;font-weight:600;color:var(--text);word-break:break-word;}
+  .contact-row .c-go{color:var(--text-muted);font-size:1.1rem;flex-shrink:0;transition:transform .2s;}
+  .contact-row:hover .c-go{transform:translateX(3px);color:var(--teal);}
+
+  /* Projects modal: folders + cards */
+  .crumb{display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;font-family:'JetBrains Mono',monospace;}
+  .crumb button{background:none;border:none;color:var(--teal);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:0.85rem;}
+  .folder-grid, .pj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;}
+  .folder-card{
+    background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:20px 16px;
+    cursor:pointer;text-align:center;transition:all .2s;position:relative;
+  }
+  .folder-card:hover{border-color:var(--amber);transform:translateY(-2px);}
+  .folder-card .f-icon{font-size:1.8rem;margin-bottom:10px;color:var(--amber);}
+  .folder-card .f-name{font-weight:600;font-size:0.9rem;margin-bottom:3px;word-break:break-word;}
+  .folder-card .f-count{font-size:0.72rem;color:var(--text-muted);}
+  .folder-del{
+    position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;
+    background:var(--surface);border:1px solid var(--line);color:var(--text-muted);
+    display:flex;align-items:center;justify-content:center;font-size:0.7rem;cursor:pointer;opacity:0;transition:opacity .2s;
+  }
+  .folder-card:hover .folder-del{opacity:1;}
+  .folder-del:hover{color:var(--rose);border-color:var(--rose);}
+
+  .add-tile{
+    background:transparent;border:1.5px dashed var(--line);border-radius:12px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    cursor:pointer;color:var(--text-muted);transition:all .2s;padding:20px 16px;min-height:108px;
+  }
+  .add-tile:hover{border-color:var(--teal-dim);color:var(--teal);}
+  .add-tile .plus{width:32px;height:32px;border-radius:50%;border:1.5px dashed currentColor;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+
+  .pj-card{
+    background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:20px;
+    grid-column:span 1;position:relative;display:flex;flex-direction:column;gap:10px;
+  }
+  .pj-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));}
+  .pj-card h4{font-size:1rem;font-weight:600;}
+  .pj-card p{font-size:0.85rem;color:var(--text-muted);flex:1;}
+  .pj-card .pj-gh{
+    display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;
+    color:var(--teal);border:1px solid var(--teal-dim);padding:7px 12px;border-radius:7px;width:fit-content;transition:all .2s;
+  }
+  .pj-card .pj-gh:hover{background:rgba(47,229,196,0.1);}
+  .pj-del{
+    position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;
+    background:var(--surface);border:1px solid var(--line);color:var(--text-muted);
+    display:flex;align-items:center;justify-content:center;font-size:0.7rem;cursor:pointer;opacity:0;transition:opacity .2s;
+  }
+  .pj-card:hover .pj-del{opacity:1;}
+  .pj-del:hover{color:var(--rose);border-color:var(--rose);}
+
+  /* Mini form for adding folder/project */
+  .mini-form{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;}
+  .mini-form label{display:block;font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;margin-top:14px;}
+  .mini-form label:first-child{margin-top:0;}
+  .mini-form input, .mini-form textarea{
+    width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;
+    color:var(--text);font-family:'Inter',sans-serif;font-size:0.9rem;resize:vertical;
+  }
+  .mini-form input:focus, .mini-form textarea:focus{outline:none;border-color:var(--teal-dim);}
+  .mini-form .mf-actions{display:flex;gap:10px;margin-top:18px;}
+  .mini-form .mf-actions button{
+    font-size:0.85rem;font-weight:600;padding:9px 18px;border-radius:7px;cursor:pointer;border:none;
+  }
+  .mf-save{background:linear-gradient(135deg, var(--teal), var(--blue));color:#071018;}
+  .mf-cancel{background:transparent;border:1px solid var(--line) !important;color:var(--text-muted);}
+
+</style>
+</head>
+<body>
+
+<div class="bg-layer">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+  <div class="blob blob4"></div>
+  <div class="grid-bg"></div>
+</div>
+
+<header>
+  <nav>
+    <div class="logo"><span class="dot"></span>JAYANT&nbsp;KUMAR&nbsp;<span style="color:var(--text-muted);font-weight:500;">Portfolio</span></div>
+    <div class="navlinks">
+      <a href="#about" onclick="return goTo(event,'about')">About</a>
+      <a href="#experience" onclick="return goTo(event,'experience')">Experience</a>
+      <a href="#featured" onclick="return goTo(event,'featured')">Current Client</a>
+      <a href="#projects" onclick="return goTo(event,'projects')">Client History</a>
+      <a href="javascript:void(0)" onclick="openProjectsModal()">Personal Projects</a>
+      <a href="#skills" onclick="return goTo(event,'skills')">Skills</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div class="eyebrow"><span class="pulse"></span>Pune, India · Data Engineer at Cognizant</div>
+    <h1>Building pipelines that move data <span class="grad-text">without breaking things.</span></h1>
+    <p class="role">
+      <strong>Data Engineer</strong> with 4+ years designing, migrating, and optimizing ETL pipelines —
+      across Informatica IDMC, PowerCenter, Snowflake, Oracle and SQL Server, at production scale.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="javascript:void(0)" onclick="openContactModal()">Get in touch</a>
+      <a class="btn btn-ghost" href="javascript:void(0)" onclick="openProjectsModal()">Personal projects</a>
+      <a class="btn btn-ghost" href="#featured" onclick="return goTo(event,'featured')">See current project ↓</a>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipeline-line">
+        <div class="packet" style="animation-delay:0s;"></div>
+        <div class="packet" style="animation-delay:1.6s;"></div>
+        <div class="packet" style="animation-delay:3.2s;"></div>
+      </div>
+      <div class="pnode active"><div class="ring"><div class="core"></div></div><label>EXTRACT</label></div>
+      <div class="pnode active"><div class="ring"><div class="core"></div></div><label>TRANSFORM</label></div>
+      <div class="pnode active"><div class="ring"><div class="core"></div></div><label>LOAD</label></div>
+      <div class="pnode active"><div class="ring"><div class="core"></div></div><label>MONITOR</label></div>
+    </div>
+  </section>
+
+  <section id="about" class="wrap">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(47,229,196,0.1);border-color:rgba(47,229,196,0.35);color:var(--teal);">◆</div>
+      <div><span class="section-tag" style="color:var(--teal);">// 01 About</span><h2>Profile summary</h2></div>
+    </div>
+    <div class="about-grid">
+      <div>
+        <p>Result-oriented data engineer with <strong>more than 4 years of experience</strong> in ETL development,
+        implementation, unit testing and support of data warehousing, data quality and data integration solutions.</p>
+        <p>Experienced in <strong>migrating and validating ETL pipelines onto Informatica IDMC</strong>,
+        with strong skills in SQL and RDBMS. Proficient in ETL/ELT development, Pushdown Optimization (PDO), workflow
+        orchestration and performance tuning — adept at implementing data validation rules and reconciliation processes
+        to ensure data accuracy and reliability.</p>
+        <p>Acts as a catalyst for data quality and governance, driving continuous process improvements. Manages workflow
+        scheduling, automation and monitoring of pipelines, with working knowledge of data security, access control and
+        governance standards in enterprise environments.</p>
+
+        <div class="genai">
+          <div class="icon">✦</div>
+          <div class="genai-text">
+            <div class="t1">Currently exploring GenAI tools for engineering workflows</div>
+            <div class="t2">Evaluating Claude, ChatGPT and GitHub Copilot to speed up documentation, code review, and automation of repetitive ETL/data-quality tasks.</div>
+          </div>
+          <div class="genai-chips"><span>Claude</span><span>ChatGPT</span><span>Copilot</span></div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat" style="--accent:var(--teal);"><div class="num">4+ yrs</div><div class="label">Data engineering experience</div></div>
+        <div class="stat" style="--accent:var(--violet);"><div class="num">50M+</div><div class="label">Records processed in a single ETL workload</div></div>
+        <div class="stat" style="--accent:var(--amber);"><div class="num">4</div><div class="label">Client projects delivered end-to-end</div></div>
+        <div class="stat" style="--accent:var(--rose);"><div class="num">5</div><div class="label">Professional certifications</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience" class="wrap">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(255,182,72,0.1);border-color:rgba(255,182,72,0.35);color:var(--amber);">▤</div>
+      <div><span class="section-tag" style="color:var(--amber);">// 02 Experience</span><h2>Work experience</h2></div>
+    </div>
+
+    <div class="job">
+      <div class="job-head">
+        <h3>Data Engineer — Cognizant Technology Solutions Pvt. Ltd.</h3>
+        <span class="period">Aug 2022 — Present</span>
+      </div>
+      <div class="job-company">Pune, India</div>
+      <ul>
+        <li>Designing and implementing scalable ETL pipelines for data extraction, transformation and loading, aligned with business requirements.</li>
+        <li>Leading migration of legacy Informatica PowerCenter workflows to Informatica Intelligent Data Management Cloud (IDMC), ensuring successful code conversion and validation.</li>
+        <li>Optimizing ETL performance with Pushdown Optimization (PDO), significantly reducing processing time and improving efficiency.</li>
+        <li>Developing dimensional data models — including fact and dimension tables — to support analytics and reporting systems.</li>
+        <li>Coordinating with stakeholders to gather and clarify ambiguous requirements, adapting to frequent business changes.</li>
+      </ul>
+
+      <div class="job-extra" id="jobExtra">
+        <ul>
+          <li>Participating in the end-to-end development lifecycle, from requirement analysis and design to implementation and deployment.</li>
+          <li>Authoring functional and technical specifications to support development, testing and deployment activities.</li>
+          <li>Troubleshooting production issues, resolving defects, and deploying hotfixes to maintain system stability.</li>
+          <li>Coordinating with cross-vendor teams to understand business rules and implement accurate data transformation logic.</li>
+          <li>Extracting and integrating data from multiple sources including Oracle Database, Microsoft SQL Server, Snowflake, Netezza and flat files.</li>
+          <li>Using a wide range of Informatica transformations — Expression, Router, Aggregator, Lookup, Joiner, Sequence Generator, Hierarchy Parser — for complex data processing.</li>
+          <li>Creating and executing test plans, test cases and regression testing for dependent systems.</li>
+          <li>Managing user stories, tasks and defect tracking in JIRA within an Agile/Scrum methodology.</li>
+          <li>Automating and supporting operational activities using Unix scripting, WinSCP and Putty.</li>
+        </ul>
+      </div>
+      <button class="toggle-more" onclick="const e=document.getElementById('jobExtra');e.classList.toggle('open');this.textContent=e.classList.contains('open')?'– show less':'+ show full responsibilities';">+ show full responsibilities</button>
+    </div>
+
+    <div class="client-trail">
+      <span class="ct-label">Client engagements at Cognizant</span>
+      <div class="ct-path">
+        <a href="#featured" class="ct-chip current" onclick="return goTo(event,'featured')">CNO <em>· current</em></a>
+        <span class="ct-arrow">→</span>
+        <a href="#client-bsc" class="ct-chip" onclick="return goTo(event,'client-bsc')">BSC Healthcare</a>
+        <span class="ct-arrow">→</span>
+        <a href="#client-dt" class="ct-chip" onclick="return goTo(event,'client-dt')">Deutsche Telekom</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CURRENT CLIENT: CNO -->
+  <section id="featured" class="wrap">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.35);color:var(--violet);">▣</div>
+      <div><span class="section-tag" style="color:var(--violet);">// 03 Current Client</span><h2>What I'm building right now</h2></div>
+    </div>
+
+    <div class="featured">
+      <div class="featured-top">
+        <div>
+          <span class="live-badge"><span class="dotpulse"></span>ACTIVE ENGAGEMENT</span>
+        </div>
+        <span class="mono" style="font-size:0.8rem;color:var(--amber);">Apr 2026 — Present</span>
+      </div>
+      <h3>IDMC Developer — CNO Financial Group</h3>
+      <div class="client-line">Client: <strong>CNO</strong>, a US-based insurance provider · via Cognizant Technology Solutions · Role: Informatica IDMC Developer</div>
+
+      <div class="flow">
+        <div class="flow-box">
+          <div class="fb-icon" style="background:rgba(255,111,145,0.12);color:var(--rose);">⛁</div>
+          <div class="fb-title">Vantage DB</div>
+          <div class="fb-sub">Legacy source · Oracle</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">
+          <div class="fb-icon" style="background:rgba(255,182,72,0.12);color:var(--amber);">⚙</div>
+          <div class="fb-title">FAST DB</div>
+          <div class="fb-sub">New source · SQL Server</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">
+          <div class="fb-icon" style="background:rgba(47,229,196,0.12);color:var(--teal);">⇄</div>
+          <div class="fb-title">IDMC Mapping Dev</div>
+          <div class="fb-sub">Lookup &amp; Expression rebuilt</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">
+          <div class="fb-icon" style="background:rgba(47,229,196,0.16);color:var(--teal);">✓</div>
+          <div class="fb-title">Deployment</div>
+          <div class="fb-sub">Dev → QA → Prod</div>
+        </div>
+      </div>
+
+      <ul class="flist">
+        <li>Migrating ETL pipelines in Informatica IDMC — source is moving from the legacy Vantage database (Oracle) to the new FAST database (SQL Server).</li>
+        <li>Leveraging consolidated FAST database views — with business rules implemented at the view level — for optimized data extraction.</li>
+        <li>Rebuilding IDMC mappings (Lookup, Expression, and related transformations) to replace Vantage-specific logic with FAST-based source objects.</li>
+        <li>Validating complex expressions and Lookup SQL queries to guarantee data integrity through Dev → QA → Production promotion.</li>
+        <li>Documenting end-to-end data flow and solution architecture via ArchiMate diagrams, and partnering cross-functionally to troubleshoot issues and ensure compliant, high-quality delivery.</li>
+      </ul>
+
+      <div class="tools">
+        <span>Informatica IDMC</span><span>Oracle</span><span>SQL Server</span><span>PostgreSQL</span><span>Snowflake</span><span>ArchiMate</span><span>JIRA</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects" class="wrap">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(255,111,145,0.1);border-color:rgba(255,111,145,0.35);color:var(--rose);">▥</div>
+      <div><span class="section-tag" style="color:var(--rose);">// 04 Client History</span><h2>Previous client engagements</h2></div>
+    </div>
+
+    <div class="client-group" id="client-bsc">
+      <div class="cg-head"><span class="cg-dot" style="background:var(--teal);"></span>BSC Healthcare <span class="cg-meta">US-based healthcare provider · 2 projects</span></div>
+      <div class="projects">
+        <div class="pcard" style="--accent:var(--teal);">
+          <div class="pnum">PROJECT · DEVELOPER</div>
+          <h3>PowerCenter → IDMC Migration</h3>
+          <div class="client">Client: BSC Healthcare</div>
+          <div class="period">Aug 2024 — Mar 2026</div>
+          <p>Migrated Informatica PowerCenter assets to IDMC. Designed and optimized large-scale ETL processes handling 1M+ success rows and 50M+ records, ensuring accuracy across the pipeline lifecycle. Built reusable mappings and parameterized workflows to improve development efficiency.</p>
+          <div class="tools"><span>IDMC CDI</span><span>PowerCenter v10.5</span><span>WinSCP</span><span>SQL Server</span><span>JIRA</span></div>
+        </div>
+
+        <div class="pcard" style="--accent:var(--amber);">
+          <div class="pnum">PROJECT · ETL TESTER</div>
+          <h3>Snowflake &amp; DBT ETL Testing</h3>
+          <div class="client">Client: BSC Healthcare</div>
+          <div class="period">Dec 2023 — Jul 2024</div>
+          <p>Wrote custom SQL queries in Snowflake to validate ETL scenarios end-to-end. Developed test cases and test plans, executing and tracking them through JIRA with linked test-execution tickets for monitoring and automation.</p>
+          <div class="tools"><span>Snowflake</span><span>DBT Core</span><span>YML</span><span>Bitbucket</span><span>JIRA</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="client-group" id="client-dt">
+      <div class="cg-head"><span class="cg-dot" style="background:var(--violet);"></span>Deutsche Telekom <span class="cg-meta">Germany-based telecom provider · 1 project</span></div>
+      <div class="projects" style="grid-template-columns:1fr;max-width:520px;">
+        <div class="pcard" style="--accent:var(--violet);">
+          <div class="pnum">PROJECT · DEVELOPER</div>
+          <h3>PowerCenter ETL Development</h3>
+          <div class="client">Client: Deutsche Telekom</div>
+          <div class="period">Aug 2022 — Nov 2023</div>
+          <p>Developed and tested Informatica flows across multiple sources, transforming data with PowerCenter using Lookup, Aggregator, Router and Joiner transformations, and loading to target systems per business requirements.</p>
+          <div class="tools"><span>PowerCenter v10.5</span><span>Oracle</span><span>SVN</span><span>Putty</span><span>JIRA</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills" class="wrap">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(91,157,255,0.1);border-color:rgba(91,157,255,0.35);color:var(--blue);">✳</div>
+      <div><span class="section-tag" style="color:var(--blue);">// 05 Skills</span><h2>Technical toolkit</h2></div>
+    </div>
+    <div class="skill-groups">
+      <div class="skill-group">
+        <h4 style="--accent:var(--teal);">Cloud &amp; Platforms</h4>
+        <div class="chips"><span>Snowflake</span><span>IDMC CDI</span><span>Azure Synapse</span><span>Azure Data Factory (ADF)</span><span>AWS</span></div>
+      </div>
+      <div class="skill-group">
+        <h4 style="--accent:var(--violet);">ETL &amp; Orchestration</h4>
+        <div class="chips"><span>Informatica PowerCenter v10.5</span><span>Informatica Migration Factory</span><span>Tidal</span><span>DBT Core</span><span>Pushdown Optimization</span></div>
+      </div>
+      <div class="skill-group">
+        <h4 style="--accent:var(--amber);">Databases &amp; Storage</h4>
+        <div class="chips"><span>Oracle</span><span>MySQL</span><span>SQL Server</span><span>Netezza</span><span>Delta Lake</span></div>
+      </div>
+      <div class="skill-group">
+        <h4 style="--accent:var(--rose);">Dev, Docs &amp; Scripting</h4>
+        <div class="chips"><span>Unix Scripting</span><span>SVN</span><span>Bitbucket</span><span>WinSCP</span><span>JIRA</span><span>ArchiMate</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="certs" class="wrap">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(255,182,72,0.1);border-color:rgba(255,182,72,0.35);color:var(--amber);">✪</div>
+      <div><span class="section-tag" style="color:var(--amber);">// 06 Certifications</span><h2>Certifications</h2></div>
+    </div>
+    <div class="certs">
+      <div class="cert"><div class="badge">✓</div><div class="name">Informatica Migration Factory Certified</div></div>
+      <div class="cert"><div class="badge">✓</div><div class="name">AWS Certified Solutions Architect – Associate</div></div>
+      <div class="cert"><div class="badge">✓</div><div class="name">AWS Certified Cloud Practitioner</div></div>
+      <div class="cert"><div class="badge">✓</div><div class="name">Microsoft Azure Fundamentals (AZ-900)</div></div>
+      <div class="cert"><div class="badge">✓</div><div class="name">SnowPro Core Certified</div></div>
+    </div>
+  </section>
+
+  <section id="education" class="wrap" style="border-bottom:none;">
+    <div class="section-head">
+      <div class="section-icon" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.35);color:var(--violet);">🎓</div>
+      <div><span class="section-tag" style="color:var(--violet);">// 07 Education</span><h2>Education</h2></div>
+    </div>
+    <div class="edu-list">
+      <div class="edu-item"><div><div class="deg">B.Tech, Electrical Engineering — Techno Main Salt Lake (MAKAUT)</div><div class="school">CGPA: 8.4</div></div><div class="year">2022</div></div>
+      <div class="edu-item"><div><div class="deg">12th Standard — SD College, Gauripur, Bhagalpur</div></div><div class="year">2017</div></div>
+      <div class="edu-item"><div><div class="deg">10th Standard — NK High School, Jhandapur</div></div><div class="year">2015</div></div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <div class="contact-box">
+    <h2>Let's talk data.</h2>
+    <p>Open to Data Engineering, ETL and Informatica developer/analyst roles. Reach out — I usually reply within a day.</p>
+    <div class="contact-links">
+      <a class="btn btn-primary" href="javascript:void(0)" onclick="openContactModal()">✉ Get in touch</a>
+      <a class="btn btn-ghost" href="https://www.linkedin.com/in/jayant-kumar-15dec2000?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener">in LinkedIn</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Jayant Kumar · Pune, India</span>
+    <span class="mono">EXTRACT → TRANSFORM → LOAD</span>
+  </div>
+</footer>
+
+<!-- CONTACT MODAL -->
+<div class="modal-overlay" id="contactModal" onclick="if(event.target===this) closeModal('contactModal')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('contactModal')" aria-label="Close">✕</button>
+    <span class="modal-eyebrow">// Get in touch</span>
+    <h2>Let's connect</h2>
+    <p class="sub">Pick whichever's easiest — each one opens directly.</p>
+    <div class="contact-list">
+      <a class="contact-row" href="mailto:jayantkumar748@gmail.com" target="_top">
+        <div class="c-icon" style="background:rgba(47,229,196,0.12);color:var(--teal);">✉</div>
+        <div class="c-body"><div class="c-label">Email</div><div class="c-value">jayantkumar748@gmail.com</div></div>
+        <div class="c-go">→</div>
+      </a>
+      <a class="contact-row" href="tel:+917979071714" target="_top">
+        <div class="c-icon" style="background:rgba(255,182,72,0.12);color:var(--amber);">☎</div>
+        <div class="c-body"><div class="c-label">Mobile</div><div class="c-value">+91 79790 71714</div></div>
+        <div class="c-go">→</div>
+      </a>
+      <a class="contact-row" href="https://www.linkedin.com/in/jayant-kumar-15dec2000?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener">
+        <div class="c-icon" style="background:rgba(91,157,255,0.12);color:var(--blue);">in</div>
+        <div class="c-body"><div class="c-label">LinkedIn</div><div class="c-value">jayant-kumar-15dec2000</div></div>
+        <div class="c-go">→</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- PERSONAL PROJECTS MODAL -->
+<div class="modal-overlay" id="projectsModal" onclick="if(event.target===this) closeModal('projectsModal')">
+  <div class="modal-box wide">
+    <button class="modal-close" onclick="closeModal('projectsModal')" aria-label="Close">✕</button>
+    <span class="modal-eyebrow">// Personal projects</span>
+    <h2 id="pjHeading">My project folders</h2>
+    <p class="sub" id="pjSub">Organized by folder — click one to see what's inside.</p>
+    <div id="pjBreadcrumb"></div>
+    <div id="pjBody"></div>
+  </div>
+</div>
+
+<script>
+  // ---- Smooth in-page scrolling (avoids link-preview interception in embedded viewers) ----
+  function goTo(e, id){
+    if(e) e.preventDefault();
+    const el = document.getElementById(id);
+    if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return false;
+  }
+
+  // ---- Modal open/close ----
+  function openContactModal(){ document.getElementById('contactModal').classList.add('open'); }
+  function openProjectsModal(){ document.getElementById('projectsModal').classList.add('open'); renderFolders(); }
+  function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape'){ closeModal('contactModal'); closeModal('projectsModal'); }
+  });
+
+  // ---- Personal projects state (in-memory for this session) ----
+  let pjState = {
+    folders: [
+      { id: 'f1', name: 'My Projects', projects: [] }
+    ]
+  };
+  let pjCurrentFolder = null; // folder id when viewing inside a folder
+  let pjFolderIdSeq = 2;
+  let pjProjectIdSeq = 1;
+
+  function esc(str){
+    const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML;
+  }
+
+  function renderFolders(){
+    pjCurrentFolder = null;
+    document.getElementById('pjHeading').textContent = 'My project folders';
+    document.getElementById('pjSub').textContent = "Organized by folder — click one to see what's inside.";
+    document.getElementById('pjBreadcrumb').innerHTML = '';
+
+    let html = '<div class="folder-grid">';
+    pjState.folders.forEach(f => {
+      html += `
+        <div class="folder-card" onclick="openFolder('${f.id}')">
+          <button class="folder-del" title="Delete folder" onclick="event.stopPropagation();deleteFolder('${f.id}')">✕</button>
+          <div class="f-icon">🗂</div>
+          <div class="f-name">${esc(f.name)}</div>
+          <div class="f-count">${f.projects.length} project${f.projects.length===1?'':'s'}</div>
+        </div>`;
+    });
+    html += `
+        <div class="add-tile" onclick="showAddFolderForm()">
+          <div class="plus">+</div>
+          <div>New folder</div>
+        </div>
+      </div>
+      <div id="pjExtra"></div>`;
+    document.getElementById('pjBody').innerHTML = html;
+  }
+
+  function showAddFolderForm(){
+    document.getElementById('pjExtra').innerHTML = `
+      <div class="mini-form">
+        <label>Folder name</label>
+        <input type="text" id="newFolderName" placeholder="e.g. Data Pipelines, Side Projects...">
+        <div class="mf-actions">
+          <button class="mf-save" onclick="saveNewFolder()">Create folder</button>
+          <button class="mf-cancel" onclick="document.getElementById('pjExtra').innerHTML=''">Cancel</button>
+        </div>
+      </div>`;
+    document.getElementById('newFolderName').focus();
+  }
+
+  function saveNewFolder(){
+    const name = document.getElementById('newFolderName').value.trim();
+    if(!name) return;
+    pjState.folders.push({ id: 'f' + (pjFolderIdSeq++), name, projects: [] });
+    renderFolders();
+  }
+
+  function deleteFolder(id){
+    if(!confirm('Delete this folder and all projects inside it?')) return;
+    pjState.folders = pjState.folders.filter(f => f.id !== id);
+    renderFolders();
+  }
+
+  function openFolder(id){
+    pjCurrentFolder = id;
+    const folder = pjState.folders.find(f => f.id === id);
+    if(!folder) return;
+    document.getElementById('pjHeading').textContent = folder.name;
+    document.getElementById('pjSub').textContent = 'Personal projects inside this folder.';
+    document.getElementById('pjBreadcrumb').innerHTML =
+      `<div class="crumb"><button onclick="renderFolders()">← All folders</button><span>/ ${esc(folder.name)}</span></div>`;
+
+    let html = '<div class="pj-grid">';
+    folder.projects.forEach(p => {
+      html += `
+        <div class="pj-card">
+          <button class="pj-del" title="Delete project" onclick="deleteProject('${folder.id}','${p.id}')">✕</button>
+          <h4>${esc(p.title)}</h4>
+          <p>${esc(p.description)}</p>
+          <a class="pj-gh" href="${esc(p.github)}" target="_blank" rel="noopener">⌥ View on GitHub</a>
+        </div>`;
+    });
+    html += `
+        <div class="add-tile" onclick="showAddProjectForm('${folder.id}')">
+          <div class="plus">+</div>
+          <div>Add project</div>
+        </div>
+      </div>
+      <div id="pjExtra"></div>`;
+    document.getElementById('pjBody').innerHTML = html;
+  }
+
+  function showAddProjectForm(folderId){
+    document.getElementById('pjExtra').innerHTML = `
+      <div class="mini-form">
+        <label>Project title</label>
+        <input type="text" id="newPjTitle" placeholder="e.g. Real-time ETL Monitor">
+        <label>Description</label>
+        <textarea id="newPjDesc" rows="3" placeholder="What does it do? What did you build it with?"></textarea>
+        <label>GitHub URL</label>
+        <input type="text" id="newPjGithub" placeholder="https://github.com/username/repo">
+        <div class="mf-actions">
+          <button class="mf-save" onclick="saveNewProject('${folderId}')">Add project</button>
+          <button class="mf-cancel" onclick="document.getElementById('pjExtra').innerHTML=''">Cancel</button>
+        </div>
+      </div>`;
+    document.getElementById('newPjTitle').focus();
+  }
+
+  function saveNewProject(folderId){
+    const title = document.getElementById('newPjTitle').value.trim();
+    const description = document.getElementById('newPjDesc').value.trim();
+    let github = document.getElementById('newPjGithub').value.trim();
+    if(!title) return;
+    if(github && !/^https?:\/\//i.test(github)) github = 'https://' + github;
+    const folder = pjState.folders.find(f => f.id === folderId);
+    folder.projects.push({ id: 'p' + (pjProjectIdSeq++), title, description, github: github || '#' });
+    openFolder(folderId);
+  }
+</script>
+
+</body>
+</html>
